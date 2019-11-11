@@ -82,7 +82,7 @@ Swagger-UI是HTML, Javascript, CSS的一个集合，可以动态地根据注解�
 - @ApiParam：用于修饰接口中的参数，生成接口参数相关文档信息
 - @ApiModelProperty：用于修饰实体类的属性，当实体类是请求参数或返回结果时，直接生成相关文档信息
 
-### 2.整合
+### 2.整合Swagger-UI
 
 1. 添加依赖。在pom.xml中引入Swagger-UI相关依赖
 2. 添加Swagger-UI的配置。
@@ -93,9 +93,49 @@ Swagger-UI是HTML, Javascript, CSS的一个集合，可以动态地根据注解�
 
 访问接口地址 http://localhost:8080/swagger-ui.html 即可查看到相应文档。
 
+## 三、整合Redis实现缓存功能
 
+### 1.Redis简介
 
+Redis是一个高性能的key-value数据库。可用于进行数据缓存，用于处理大量数据的高访问负载，可以对关系型数据库起到很好的补充作用。
 
+安装：下载地址： https://github.com/microsoftarchive/redis/releases/tag/win-3.2.100 
+
+下载后解压，在命令行找到解压文件夹。执行redis的启动命令： redis-server.exe redis.windows.conf 
+
+### 2.整合Redis
+
+1. 添加依赖。在pom.xml中新增redis相关依赖。
+2. 修改application.yml中添加Redis配置以及自定义key的配置。
+3. 添加RedisService接口用于定义一些常用的Redis操作。注入StringRedisTemplate，实现RedisService接口
+4. 写手机验证的业务逻辑。Service层到Controller层。
+5. 用Swagger-UI测试接口。
+
+### 3.问题解决
+
+问题1.Mybatis配置错误
+
+```java
+Cause: org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; 前言中不允许有内容。
+```
+
+解决：在修改application.yml配置时，不小心修改了mybatis配置，多加了一个"-"。删除即可。
+
+```java
+mybatis:
+  mapper-locations:
+    - classpath:mapper/*.xml
+    - classpath*:com/**/mapper/*.xml
+    - 
+```
+
+问题2.测试verifyAuthCode接口时报500错，后台报错
+
+```java
+io.lettuce.core.RedisCommandTimeoutException: Command timed out after 3 second(s)
+```
+
+解决：Redis连接超时。Redis服务长时间不连接就会休眠，重新开启一下服务即可。
 
 
 
